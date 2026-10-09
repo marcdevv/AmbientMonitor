@@ -1,717 +1,714 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ambient Monitor</title>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-    <link rel="icon" href="https://github.com/CasketPizza/AmbientMonitor/blob/main/Ambient_Monitor_Icon.png?raw=true" type="image/png">
-
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            overflow: hidden;
-            background: black;
-            font-family: 'VT323', monospace;
-        }
-
-        body {
-            position: relative;
-            background: #000;
-        }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-            transform-origin: center center;
-            will-change: transform, filter;
-        }
-
-        .noise-overlay {
-            position: absolute;
-            inset: 0;
-            z-index: 2;
-            pointer-events: none;
-            mix-blend-mode: overlay;
-            opacity: 0.18;
-            image-rendering: pixelated;
-            will-change: opacity;
-        }
-
-        .controls {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            color: white;
-            font-size: 18px;
-            z-index: 5;
-            display: none;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.25);
-            padding: 12px 16px;
-            border-radius: 12px;
-            backdrop-filter: blur(8px);
-        }
-
-        .feedback {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            font-size: 72px;
-            font-family: 'VT323', monospace;
-            z-index: 6;
-            display: none;
-            text-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
-        }
-
-        .control-button,
-        .control-button-flip,
-        .fullscreen-button,
-        .reset-button {
-            font-family: 'VT323', monospace;
-            color: white;
-            background: rgba(0, 0, 0, 0.5);
-            border: none;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .control-button {
-            font-size: 50px;
-            padding: 15px;
-            display: inline-block;
-            margin: 0 10px;
-            width: 80px;
-            height: 80px;
-            text-align: center;
-            line-height: 50px;
-            vertical-align: middle;
-        }
-
-        .control-button-flip {
-            font-size: 20px;
-            padding: 15px;
-            display: inline-block;
-            margin: 0 10px;
-            width: 120px;
-            height: 80px;
-            text-align: center;
-            line-height: 20px;
-            vertical-align: middle;
-        }
-
-        .control-button span {
-            display: block;
-            font-size: 50px;
-        }
-
-        .controls div {
-            margin-bottom: 15px;
-        }
-
-        .control-label {
-            display: inline-block;
-            color: white;
-            font-size: 22px;
-            margin: 0 10px;
-            vertical-align: middle;
-            text-align: center;
-            line-height: 80px;
-            min-width: 180px;
-        }
-
-        .control-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            align-items: center;
-            width: 100%;
-            gap: 8px;
-        }
-
-        .control-button-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100px;
-            gap: 8px;
-        }
-
-        .control-label-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .controls .control-row {
-            display: flex;
-            justify-content: space-evenly;
-            width: 100%;
-        }
-
-        .fullscreen-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 20px;
-            padding: 15px;
-            width: 150px;
-            height: 80px;
-            text-align: center;
-            line-height: 20px;
-            z-index: 6;
-            display: none;
-        }
-
-        .reset-button {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 20px;
-            padding: 15px;
-            width: 120px;
-            height: 80px;
-            text-align: center;
-            line-height: 20px;
-            z-index: 6;
-            display: none;
-        }
-
-        .confirm-button {
-            color: red;
-        }
-
-        .save-load-container {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            z-index: 6;
-            display: none;
-        }
-
-        h3 {
-            margin: 10px 0 8px;
-            font-size: 28px;
-            font-weight: normal;
-        }
-
-        p {
-            margin: 0 0 10px;
-            font-size: 24px;
-        }
-
-        .centered-row {
-            justify-content: center !important;
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090b10">
+<title>Ambient Monitor</title>
+<link rel="icon" href="https://github.com/marcdevv/AmbientMonitor/blob/main/Ambient_Monitor_Icon.png?raw=true" type="image/png">
+<style>
+:root{color-scheme:dark;--bg:#090b10;--panel:#11151d;--panel2:#181e29;--line:#293243;--text:#edf2fb;--muted:#99a6bb;--accent:#b7f36b;--accent-ink:#17210c;--danger:#ff7373;--radius:16px}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#000;color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#stage{position:fixed;inset:0;overflow:hidden;background:#000;isolation:isolate}
+#cropLayer{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;will-change:left,top,width,height}
+#screenVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;filter:brightness(1) contrast(.9) blur(40px);transform-origin:center;will-change:filter,transform}
+#noiseCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;mix-blend-mode:overlay;opacity:.18;image-rendering:pixelated}
+.fade-edge{position:absolute;z-index:3;pointer-events:none;background:#000}
+#fadeTop{top:0;left:0;right:0;height:0;background:linear-gradient(to bottom,#000,transparent)}
+#fadeRight{top:0;right:0;bottom:0;width:0;background:linear-gradient(to left,#000,transparent)}
+#fadeBottom{left:0;right:0;bottom:0;height:0;background:linear-gradient(to top,#000,transparent)}
+#fadeLeft{top:0;left:0;bottom:0;width:0;background:linear-gradient(to right,#000,transparent)}
+#toolbar{position:fixed;z-index:30;top:14px;right:14px;display:flex;gap:8px}
+.icon-button,.secondary-button,.primary-button,.tab-button{border:1px solid var(--line);border-radius:11px;color:var(--text);background:rgba(17,21,29,.88);backdrop-filter:blur(18px);padding:10px 13px;transition:background .15s,border-color .15s,transform .15s}
+.icon-button:hover,.secondary-button:hover,.tab-button:hover{background:#242d3b;border-color:#43516a}
+.primary-button{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:750}
+.primary-button:hover{background:#cdf995}
+button:active{transform:translateY(1px)}
+.icon-button{display:grid;place-items:center;width:42px;height:42px;padding:0;font-size:19px}
+#settingsPanel{position:fixed;z-index:20;top:14px;right:14px;bottom:14px;width:min(398px,calc(100vw - 28px));display:flex;flex-direction:column;background:rgba(13,17,24,.96);border:1px solid #2a3445;border-radius:19px;box-shadow:0 24px 90px rgba(0,0,0,.55);backdrop-filter:blur(24px);overflow:hidden}
+#settingsPanel.hidden{display:none}
+.panel-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:17px 17px 14px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.brand-mark{width:37px;height:37px;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:21px;font-weight:900}
+.brand h1{font-size:15px;margin:0;letter-spacing:.01em}
+.brand p{font-size:11px;color:var(--muted);margin:2px 0 0}
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:11px 12px;border-bottom:1px solid var(--line)}
+.tab-button{padding:9px 3px;border-radius:9px;font-size:12px;color:var(--muted);background:transparent;border-color:transparent}
+.tab-button.active{background:#27313e;border-color:#39485c;color:var(--text)}
+.panel-content{overflow:auto;padding:13px 16px 18px;overscroll-behavior:contain}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:3px 0 11px}
+.section-heading h2{font-size:13px;margin:0;font-weight:750}
+.section-heading small{font-size:11px;color:var(--muted)}
+.setting{padding:9px 0 10px;border-bottom:1px solid rgba(57,69,88,.48)}
+.setting:last-child{border-bottom:0}
+.setting-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:9px}
+.setting label,.setting .name{font-size:12px;color:#dce4f2}
+.value{font-size:11px;color:var(--accent);font-variant-numeric:tabular-nums;min-width:48px;text-align:right}
+input[type=range]{display:block;width:100%;height:16px;margin:0;accent-color:var(--accent);cursor:pointer}
+.range-limits{display:flex;justify-content:space-between;color:#738198;font-size:10px;margin-top:2px}
+.setting-description{color:var(--muted);font-size:11px;margin:5px 0 0}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid rgba(57,69,88,.48);font-size:12px}
+.toggle-row input{accent-color:var(--accent);width:16px;height:16px}
+.preset-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0}
+.preset-row button{font-size:11px;padding:9px 4px}
+.crop-preview-wrap{margin:10px 0 14px;padding:9px;border:1px solid var(--line);background:#07090d;border-radius:13px}
+.crop-preview{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#151a22;border-radius:7px;touch-action:none;user-select:none}
+#sourcePreview{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+.crop-dim{position:absolute;inset:0;pointer-events:none;background:rgba(0,0,0,.48)}
+.crop-selection{position:absolute;left:0;top:0;width:100%;height:100%;border:2px solid var(--accent);box-shadow:0 0 0 999px rgba(0,0,0,.2);cursor:move;touch-action:none}
+.crop-selection:after{content:"";position:absolute;inset:0;background:rgba(183,243,107,.06);pointer-events:none}
+.crop-handle{position:absolute;z-index:2;width:12px;height:12px;border-radius:4px;background:var(--accent);border:2px solid #0a0d11}
+.crop-handle[data-handle=nw]{left:-6px;top:-6px;cursor:nwse-resize}
+.crop-handle[data-handle=ne]{right:-6px;top:-6px;cursor:nesw-resize}
+.crop-handle[data-handle=sw]{left:-6px;bottom:-6px;cursor:nesw-resize}
+.crop-handle[data-handle=se]{right:-6px;bottom:-6px;cursor:nwse-resize}
+.preview-caption{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:8px}
+.note{font-size:11px;color:var(--muted);line-height:1.5;margin:8px 0}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}
+.card-title{font-size:12px;font-weight:750;margin:0 0 5px}
+.button-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.button-row>*{flex:1}
+.select-control{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:10px;color:var(--text);background:#0c1017;margin:5px 0}
+.status-line{font-size:11px;color:var(--muted);padding-top:11px}
+.status-line strong{color:var(--accent);font-weight:650}
+.panel-footer{display:flex;gap:8px;padding:12px 15px;border-top:1px solid var(--line);background:rgba(8,10,15,.65)}
+.panel-footer button{flex:1;font-size:11px;padding:9px 6px}
+#startOverlay{position:fixed;z-index:50;inset:0;display:grid;place-items:center;padding:22px;background:radial-gradient(ellipse at 50% 42%,rgba(25,36,49,.74),rgba(0,0,0,.95) 65%)}
+#startOverlay.hidden{display:none}
+.start-card{width:min(440px,100%);padding:28px;border:1px solid #344155;background:rgba(13,17,24,.95);border-radius:22px;box-shadow:0 28px 100px rgba(0,0,0,.55)}
+.eyebrow{font-size:10px;font-weight:800;color:var(--accent);letter-spacing:.16em;text-transform:uppercase}
+.start-card h2{font-size:28px;line-height:1.1;letter-spacing:-.04em;margin:10px 0}
+.start-card p{color:var(--muted);font-size:13px;line-height:1.65}
+.start-icon{width:54px;height:54px;border-radius:17px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:29px;margin-bottom:20px}
+.start-card .primary-button{width:100%;padding:13px;margin-top:8px}
+#startStatus{min-height:16px;color:#ffb6a5;font-size:11px;margin-top:10px}
+#toast{position:fixed;z-index:60;left:50%;bottom:24px;transform:translate(-50%,12px);opacity:0;pointer-events:none;padding:10px 14px;border-radius:12px;background:#eaf8d4;color:#1c2912;font-size:12px;font-weight:750;transition:opacity .18s,transform .18s;box-shadow:0 8px 30px #0008}
+#toast.visible{opacity:1;transform:translate(-50%,0)}
+#helpHint{position:fixed;z-index:10;bottom:14px;left:14px;padding:7px 10px;background:rgba(0,0,0,.36);border:1px solid #ffffff19;border-radius:9px;color:#ffffffa3;font-size:10px;pointer-events:none;transition:opacity .2s}
+#helpHint.hidden{opacity:0}
+@media(max-width:520px){#settingsPanel{top:7px;right:7px;bottom:7px;width:calc(100vw - 14px)}#toolbar{top:9px;right:9px}.start-card{padding:22px}.tabs{padding-left:7px;padding-right:7px}.tab-button{font-size:11px}}
+</style>
 </head>
 <body>
-    <video id="screenVideo" autoplay playsinline muted></video>
-    <canvas id="noiseCanvas" class="noise-overlay"></canvas>
+<div id="stage" aria-label="Ambient output">
+  <div id="cropLayer"><video id="screenVideo" autoplay playsinline muted></video></div>
+  <canvas id="noiseCanvas" aria-hidden="true"></canvas>
+  <div class="fade-edge" id="fadeTop"></div>
+  <div class="fade-edge" id="fadeRight"></div>
+  <div class="fade-edge" id="fadeBottom"></div>
+  <div class="fade-edge" id="fadeLeft"></div>
+</div>
 
-    <div class="controls">
-        <p>Use the buttons below to adjust settings:</p>
+<div id="toolbar">
+  <button class="icon-button" id="settingsToggle" aria-label="Toggle settings" title="Settings (Tab)">☷</button>
+  <button class="icon-button" id="fullscreenToggle" aria-label="Toggle fullscreen" title="Fullscreen (F)">⛶</button>
+</div>
+<div id="helpHint">TAB · settings &nbsp; F · fullscreen &nbsp; ESC · close panel</div>
 
-        <div class="control-row">
-            <div class="control-button-wrapper">
-                <button class="control-button" id="decrease-brightness"><span>-</span></button>
-                <button class="control-button" id="decrease-contrast"><span>-</span></button>
-                <button class="control-button" id="decrease-scale"><span>-</span></button>
-                <button class="control-button" id="decrease-blur"><span>-</span></button>
-                <button class="control-button" id="decrease-noise-amount"><span>-</span></button>
-                <button class="control-button" id="decrease-noise-size"><span>-</span></button>
-                <button class="control-button" id="decrease-noise-speed"><span>-</span></button>
-            </div>
-
-            <div class="control-label-wrapper">
-                <span class="control-label">Brightness</span>
-                <span class="control-label">Contrast</span>
-                <span class="control-label">Scale</span>
-                <span class="control-label">Blur</span>
-                <span class="control-label">Noise Amount</span>
-                <span class="control-label">Noise Size</span>
-                <span class="control-label">Noise Speed</span>
-            </div>
-
-            <div class="control-button-wrapper">
-                <button class="control-button" id="increase-brightness"><span>+</span></button>
-                <button class="control-button" id="increase-contrast"><span>+</span></button>
-                <button class="control-button" id="increase-scale"><span>+</span></button>
-                <button class="control-button" id="increase-blur"><span>+</span></button>
-                <button class="control-button" id="increase-noise-amount"><span>+</span></button>
-                <button class="control-button" id="increase-noise-size"><span>+</span></button>
-                <button class="control-button" id="increase-noise-speed"><span>+</span></button>
-            </div>
-        </div>
-
-        <h3>Flip Image</h3>
-        <div class="control-row">
-            <div class="control-label">Horizontal</div>
-            <button class="control-button-flip" id="flip-horizontal">
-                <span id="horizontal-status">Enabled</span>
-            </button>
-        </div>
-        <div class="control-row">
-            <div class="control-label">Vertical</div>
-            <button class="control-button-flip" id="flip-vertical">
-                <span id="vertical-status">Disabled</span>
-            </button>
-        </div>
-
-        <h3>Noise</h3>
-        <div class="control-row centered-row">
-            <button class="control-button-flip" id="toggle-noise">
-                <span id="noise-status">Enabled</span>
-            </button>
-        </div>
+<aside id="settingsPanel" class="hidden" aria-label="Ambient Monitor settings">
+  <div class="panel-header">
+    <div class="brand">
+      <div class="brand-mark">A</div>
+      <div><h1>Ambient Monitor</h1><p>Live display controls</p></div>
     </div>
+    <button class="icon-button" id="closePanel" aria-label="Close settings">×</button>
+  </div>
+  <nav class="tabs" aria-label="Settings categories">
+    <button class="tab-button active" data-tab="image">Image</button>
+    <button class="tab-button" data-tab="crop">Crop</button>
+    <button class="tab-button" data-tab="fade">Fade</button>
+    <button class="tab-button" data-tab="effects">Effects</button>
+  </nav>
+  <div class="panel-content">
+    <section class="tab-panel active" data-panel="image">
+      <div class="section-heading"><h2>Picture</h2><small>Applied instantly</small></div>
+      <div class="setting">
+        <div class="setting-top"><label for="brightness">Brightness</label><output class="value" data-value-for="brightness"></output></div>
+        <input id="brightness" data-key="brightness" type="range" min="0" max="200" step="1">
+        <div class="range-limits"><span>0%</span><span>200%</span></div>
+      </div>
+      <div class="setting">
+        <div class="setting-top"><label for="contrast">Contrast</label><output class="value" data-value-for="contrast"></output></div>
+        <input id="contrast" data-key="contrast" type="range" min="0" max="200" step="1">
+        <div class="range-limits"><span>0%</span><span>200%</span></div>
+      </div>
+      <div class="setting">
+        <div class="setting-top"><label for="blur">Blur</label><output class="value" data-value-for="blur"></output></div>
+        <input id="blur" data-key="blur" type="range" min="0" max="100" step="1">
+        <div class="range-limits"><span>Sharp</span><span>Very soft</span></div>
+      </div>
+      <div class="setting">
+        <div class="setting-top"><label for="zoom">Zoom</label><output class="value" data-value-for="zoom"></output></div>
+        <input id="zoom" data-key="zoom" type="range" min="50" max="200" step="1">
+        <div class="range-limits"><span>50%</span><span>200%</span></div>
+      </div>
+      <div class="toggle-row"><span>Flip horizontally</span><input type="checkbox" id="flipHorizontal" data-key="flipHorizontal"></div>
+      <div class="toggle-row"><span>Flip vertically</span><input type="checkbox" id="flipVertical" data-key="flipVertical"></div>
+      <div class="card">
+        <p class="card-title">Screen capture</p>
+        <p class="note">To show another monitor, move this window to the target display and use the capture button below. The browser asks you to choose a screen, window or tab.</p>
+        <button class="secondary-button" id="changeCapture" style="width:100%">Choose / change source</button>
+      </div>
+    </section>
 
-    <div class="feedback" id="feedback"></div>
+    <section class="tab-panel" data-panel="crop">
+      <div class="section-heading"><h2>Source region</h2><small>Drag the box to select</small></div>
+      <div class="crop-preview-wrap">
+        <div class="crop-preview" id="cropPreview">
+          <video id="sourcePreview" autoplay playsinline muted></video>
+          <div class="crop-dim"></div>
+          <div class="crop-selection" id="cropSelection" aria-label="Selected crop region">
+            <i class="crop-handle" data-handle="nw"></i><i class="crop-handle" data-handle="ne"></i>
+            <i class="crop-handle" data-handle="sw"></i><i class="crop-handle" data-handle="se"></i>
+          </div>
+        </div>
+        <div class="preview-caption"><span>Drag inside to move</span><span>Drag corners to resize</span></div>
+      </div>
+      <div class="preset-row">
+        <button class="secondary-button" data-preset="full">Full screen</button>
+        <button class="secondary-button" data-preset="left">Left half</button>
+        <button class="secondary-button" data-preset="right">Right half</button>
+      </div>
+      <div class="setting">
+        <div class="setting-top"><label for="cropX">Horizontal position</label><output class="value" data-value-for="cropX"></output></div>
+        <input id="cropX" data-key="cropX" type="range" min="0" max="99" step="1">
+      </div>
+      <div class="setting">
+        <div class="setting-top"><label for="cropY">Vertical position</label><output class="value" data-value-for="cropY"></output></div>
+        <input id="cropY" data-key="cropY" type="range" min="0" max="99" step="1">
+      </div>
+      <div class="setting">
+        <div class="setting-top"><label for="cropW">Region width</label><output class="value" data-value-for="cropW"></output></div>
+        <input id="cropW" data-key="cropW" type="range" min="2" max="100" step="1">
+      </div>
+      <div class="setting">
+        <div class="setting-top"><label for="cropH">Region height</label><output class="value" data-value-for="cropH"></output></div>
+        <input id="cropH" data-key="cropH" type="range" min="2" max="100" step="1">
+      </div>
+      <p class="note">The coordinates are percentages of the captured screen. The selected region is stretched to fill the ambient display, matching the original app's behaviour.</p>
+    </section>
 
-    <button class="fullscreen-button" id="fullscreen-toggle">Enter Fullscreen</button>
-    <button class="reset-button" id="reset-button">Reset</button>
+    <section class="tab-panel" data-panel="fade">
+      <div class="section-heading"><h2>Fade to black</h2><small>Separate edges</small></div>
+      <p class="note">Increase a side's width to smoothly fade the blurred picture into black. Set an edge to 0% to disable it.</p>
+      <div class="setting">
+        <div class="setting-top"><label for="fadeTopRange">Top edge</label><output class="value" data-value-for="fadeTop"></output></div>
+        <input id="fadeTopRange" data-key="fadeTop" type="range" min="0" max="50" step="1">
+      </div>
+      <div class="setting">
+        <div class="setting-top"><label for="fadeRightRange">Right edge</label><output class="value" data-value-for="fadeRight"></output></div>
+        <input id="fadeRightRange" data-key="fadeRight" type="range" min="0" max="50" step="1">
+      </div>
+      <div class="setting">
+        <div class="setting-top"><label for="fadeBottomRange">Bottom edge</label><output class="value" data-value-for="fadeBottom"></output></div>
+        <input id="fadeBottomRange" data-key="fadeBottom" type="range" min="0" max="50" step="1">
+      </div>
+      <div class="setting">
+        <div class="setting-top"><label for="fadeLeftRange">Left edge</label><output class="value" data-value-for="fadeLeft"></output></div>
+        <input id="fadeLeftRange" data-key="fadeLeft" type="range" min="0" max="50" step="1">
+      </div>
+      <div class="setting">
+        <div class="setting-top"><label for="fadeStrength">Fade strength</label><output class="value" data-value-for="fadeStrength"></output></div>
+        <input id="fadeStrength" data-key="fadeStrength" type="range" min="0" max="100" step="1">
+        <div class="range-limits"><span>Subtle</span><span>Fully black</span></div>
+      </div>
+      <div class="card">
+        <p class="card-title">Quick example</p>
+        <p class="note">For a right-to-black transition, set Right edge to 25–40% and Fade strength to 100%. Keep the other edges at 0% if you only want one side to fade.</p>
+      </div>
+    </section>
 
-    <div class="save-load-container" id="save-load-container">
-        <button class="control-button-flip" id="save-settings">Save Settings</button>
-        <button class="control-button-flip" id="load-settings-button">Load Settings</button>
-        <input type="file" id="load-settings" style="display: none;" accept=".json,application/json" />
-    </div>
+    <section class="tab-panel" data-panel="effects">
+      <div class="section-heading"><h2>Noise overlay</h2><small>Optional film grain</small></div>
+      <div class="toggle-row"><span>Enable animated noise</span><input type="checkbox" id="noiseEnabled" data-key="noiseEnabled"></div>
+      <div class="setting">
+        <div class="setting-top"><label for="noiseAmount">Noise opacity</label><output class="value" data-value-for="noiseAmount"></output></div>
+        <input id="noiseAmount" data-key="noiseAmount" type="range" min="0" max="100" step="1">
+      </div>
+      <div class="setting">
+        <div class="setting-top"><label for="noiseSize">Grain size</label><output class="value" data-value-for="noiseSize"></output></div>
+        <input id="noiseSize" data-key="noiseSize" type="range" min="1" max="10" step="1">
+        <div class="range-limits"><span>Coarse</span><span>Fine</span></div>
+      </div>
+      <div class="setting">
+        <div class="setting-top"><label for="noiseSpeed">Noise refresh rate</label><output class="value" data-value-for="noiseSpeed"></output></div>
+        <input id="noiseSpeed" data-key="noiseSpeed" type="range" min="2" max="60" step="1">
+        <div class="range-limits"><span>2 FPS</span><span>60 FPS</span></div>
+      </div>
+      <div class="card">
+        <p class="card-title">Profiles</p>
+        <p class="note">Profiles are stored in this browser. Use Export to create a portable JSON settings file.</p>
+        <select class="select-control" id="profileSelect" aria-label="Saved profiles"><option value="">Choose a saved profile…</option></select>
+        <div class="button-row">
+          <button class="secondary-button" id="saveProfile">Save profile</button>
+          <button class="secondary-button" id="loadProfile">Load profile</button>
+        </div>
+        <div class="button-row"><button class="secondary-button" id="deleteProfile">Delete selected</button></div>
+      </div>
+    </section>
+    <div class="status-line" id="statusLine">Status: <strong>waiting for capture</strong></div>
+  </div>
+  <div class="panel-footer">
+    <button class="secondary-button" id="exportSettings">Export JSON</button>
+    <button class="secondary-button" id="importSettings">Import JSON</button>
+    <button class="secondary-button" id="resetSettings">Reset</button>
+    <input type="file" id="settingsFile" accept=".json,application/json" hidden>
+  </div>
+</aside>
 
-    <script>
-        const video = document.getElementById("screenVideo");
-        const feedback = document.getElementById("feedback");
-        const fullscreenButton = document.getElementById("fullscreen-toggle");
-        const resetButton = document.getElementById("reset-button");
-        const saveLoadContainer = document.getElementById("save-load-container");
-        const controls = document.querySelector(".controls");
+<div id="startOverlay">
+  <div class="start-card">
+    <div class="start-icon">◉</div>
+    <div class="eyebrow">Ambient display toolkit</div>
+    <h2>Give your second screen some atmosphere.</h2>
+    <p>Capture a screen, then tune blur, brightness, crop, animated grain and smooth fades into black. Changes are previewed live and saved in this browser.</p>
+    <button class="primary-button" id="startCapture">Choose screen to capture</button>
+    <div id="startStatus" role="status"></div>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
 
-        const noiseCanvas = document.getElementById("noiseCanvas");
-        const noiseCtx = noiseCanvas.getContext("2d", { alpha: true });
+<script>
+(function(){
+  "use strict";
+  var STORAGE_KEY = "ambientMonitor.settings.v2";
+  var PROFILE_KEY = "ambientMonitor.profiles.v1";
+  var defaults = {
+    brightness:100, contrast:90, blur:40, zoom:100,
+    flipHorizontal:false, flipVertical:false,
+    cropX:0, cropY:0, cropW:100, cropH:100,
+    fadeTop:0, fadeRight:30, fadeBottom:0, fadeLeft:0, fadeStrength:100,
+    noiseEnabled:true, noiseAmount:18, noiseSize:4, noiseSpeed:24
+  };
+  var settings = Object.assign({}, defaults);
+  var activeStream = null;
+  var toastTimer = null;
+  var noiseFrame = null;
+  var lastNoiseTime = 0;
+  var dragState = null;
+  var noiseCanvas = document.getElementById("noiseCanvas");
+  var noiseCtx = noiseCanvas.getContext("2d", {alpha:true});
+  var sourceCanvas = document.createElement("canvas");
+  var sourceCtx = sourceCanvas.getContext("2d", {alpha:true});
+  var video = document.getElementById("screenVideo");
+  var sourcePreview = document.getElementById("sourcePreview");
+  var cropPreview = document.getElementById("cropPreview");
+  var cropSelection = document.getElementById("cropSelection");
+  var cropLayer = document.getElementById("cropLayer");
+  var panel = document.getElementById("settingsPanel");
+  var startOverlay = document.getElementById("startOverlay");
+  var statusLine = document.getElementById("statusLine");
+  var startStatus = document.getElementById("startStatus");
 
-        const noiseSourceCanvas = document.createElement("canvas");
-        const noiseSourceCtx = noiseSourceCanvas.getContext("2d", { alpha: true });
-
-        let brightness = 100;
-        let contrast = 90;
-        let scale = 1;
-        let blur = 75;
-
-        let isHorizontalFlipped = true;
-        let isVerticalFlipped = false;
-
-        let noiseEnabled = true;
-        let noiseAmount = 18;
-        let noiseSize = 1.0;   // 1 = larger baseline grain, 10 = finest grain
-        let noiseSpeed = 60;
-
-        let feedbackTimeout;
-        let isConfirmMode = false;
-        let noiseFrameRequest = null;
-        let lastNoiseFrameTime = 0;
-
-        async function startScreenCapture() {
-            try {
-                const stream = await navigator.mediaDevices.getDisplayMedia({
-                    video: { displaySurface: "monitor" },
-                    audio: false
-                });
-
-                video.srcObject = stream;
-
-                stream.getVideoTracks()[0].addEventListener("ended", () => {
-                    video.srcObject = null;
-                    showFeedback("Screen capture stopped");
-                });
-            } catch (err) {
-                console.error("Screen capture failed:", err);
-                showFeedback("Screen capture failed");
-            }
-        }
-
-        function applyTransform() {
-            const flipX = isHorizontalFlipped ? -1 : 1;
-            const flipY = isVerticalFlipped ? -1 : 1;
-            video.style.transform = `scaleX(${flipX}) scaleY(${flipY}) scale(${scale})`;
-        }
-
-        function updateFilters() {
-            video.style.filter = `brightness(${brightness}%) contrast(${contrast}%) blur(${blur}px)`;
-        }
-
-        function updateNoiseAppearance() {
-            noiseCanvas.style.opacity = noiseEnabled ? (noiseAmount / 100).toFixed(2) : "0";
-            document.getElementById("noise-status").textContent = noiseEnabled ? "Enabled" : "Disabled";
-        }
-
-        function resizeNoiseCanvas() {
-            noiseCanvas.width = window.innerWidth;
-            noiseCanvas.height = window.innerHeight;
-            noiseCtx.setTransform(1, 0, 0, 1, 0, 0);
-            noiseCtx.imageSmoothingEnabled = false;
-        }
-
-        function getNoiseScale() {
-            const reversed = 11 - noiseSize;
-			
-			const t = (reversed - 1) / 9;
-			
-			const coarseScale = 0.22;
-			const fineScale = 1.35;
-			
-			return coarseScale + (fineScale - coarseScale) * t;
-        }
-
-        function rebuildNoiseSource() {
-            const scaleFactor = getNoiseScale();
-
-            const sourceWidth = Math.max(64, Math.round(window.innerWidth * scaleFactor));
-            const sourceHeight = Math.max(64, Math.round(window.innerHeight * scaleFactor));
-
-            noiseSourceCanvas.width = sourceWidth;
-            noiseSourceCanvas.height = sourceHeight;
-            noiseSourceCtx.imageSmoothingEnabled = false;
-
-            const imageData = noiseSourceCtx.createImageData(sourceWidth, sourceHeight);
-            const data = imageData.data;
-
-            for (let i = 0; i < data.length; i += 4) {
-                const v = Math.random() * 255 | 0;
-                data[i] = v;
-                data[i + 1] = v;
-                data[i + 2] = v;
-                data[i + 3] = 255;
-            }
-
-            noiseSourceCtx.putImageData(imageData, 0, 0);
-        }
-
-        function renderNoiseFrame(timestamp = 0) {
-            const minInterval = 1000 / Math.max(2, noiseSpeed);
-
-            if (!lastNoiseFrameTime || (timestamp - lastNoiseFrameTime) >= minInterval) {
-                lastNoiseFrameTime = timestamp;
-
-                rebuildNoiseSource();
-
-                noiseCtx.clearRect(0, 0, noiseCanvas.width, noiseCanvas.height);
-                noiseCtx.imageSmoothingEnabled = false;
-
-                const maxOffsetX = Math.max(0, noiseSourceCanvas.width - 8);
-                const maxOffsetY = Math.max(0, noiseSourceCanvas.height - 8);
-                const sx = maxOffsetX > 0 ? (Math.random() * Math.min(8, maxOffsetX)) | 0 : 0;
-                const sy = maxOffsetY > 0 ? (Math.random() * Math.min(8, maxOffsetY)) | 0 : 0;
-                const sw = noiseSourceCanvas.width - sx;
-                const sh = noiseSourceCanvas.height - sy;
-
-                noiseCtx.drawImage(
-                    noiseSourceCanvas,
-                    sx, sy, sw, sh,
-                    0, 0, noiseCanvas.width, noiseCanvas.height
-                );
-            }
-
-            noiseFrameRequest = requestAnimationFrame(renderNoiseFrame);
-        }
-
-        function restartNoise() {
-            if (noiseFrameRequest) {
-                cancelAnimationFrame(noiseFrameRequest);
-                noiseFrameRequest = null;
-            }
-
-            resizeNoiseCanvas();
-            lastNoiseFrameTime = 0;
-
-            if (noiseEnabled) {
-                noiseFrameRequest = requestAnimationFrame(renderNoiseFrame);
-            } else {
-                noiseCtx.clearRect(0, 0, noiseCanvas.width, noiseCanvas.height);
-            }
-
-            updateNoiseAppearance();
-        }
-
-        function showFeedback(message) {
-            feedback.textContent = message;
-            feedback.style.display = "block";
-            clearTimeout(feedbackTimeout);
-            feedbackTimeout = setTimeout(() => {
-                feedback.style.display = "none";
-            }, 3000);
-        }
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        function setControlsVisible(visible) {
-            const display = visible ? "block" : "none";
-            controls.style.display = display;
-            fullscreenButton.style.display = display;
-            resetButton.style.display = display;
-            saveLoadContainer.style.display = display;
-        }
-
-        function updateFlipLabels() {
-            document.getElementById("horizontal-status").textContent = isHorizontalFlipped ? "Enabled" : "Disabled";
-            document.getElementById("vertical-status").textContent = isVerticalFlipped ? "Enabled" : "Disabled";
-        }
-
-        function resetSettings() {
-            brightness = 100;
-            contrast = 90;
-            scale = 1;
-            blur = 75;
-
-            isHorizontalFlipped = true;
-            isVerticalFlipped = false;
-
-            noiseEnabled = true;
-            noiseAmount = 18;
-            noiseSize = 1.0;
-            noiseSpeed = 60;
-
-            updateFilters();
-            applyTransform();
-            updateFlipLabels();
-            restartNoise();
-
-            showFeedback("Settings reset");
-        }
-
-        function saveSettingsToFile() {
-            const settings = {
-                brightness,
-                contrast,
-                scale,
-                blur,
-                isHorizontalFlipped,
-                isVerticalFlipped,
-                noiseEnabled,
-                noiseAmount,
-                noiseSize,
-                noiseSpeed
-            };
-
-            const blob = new Blob([JSON.stringify(settings, null, 2)], { type: "application/json" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "AmbientMonitorSettings.json";
-            link.click();
-            URL.revokeObjectURL(link.href);
-
-            showFeedback("Settings saved");
-        }
-
-        function loadSettingsFromFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const settings = JSON.parse(e.target.result);
-
-                    brightness = typeof settings.brightness === "number" ? settings.brightness : 100;
-                    contrast = typeof settings.contrast === "number" ? settings.contrast : 90;
-                    scale = typeof settings.scale === "number" ? settings.scale : 1;
-                    blur = typeof settings.blur === "number" ? settings.blur : 75;
-                    isHorizontalFlipped = typeof settings.isHorizontalFlipped === "boolean" ? settings.isHorizontalFlipped : true;
-                    isVerticalFlipped = typeof settings.isVerticalFlipped === "boolean" ? settings.isVerticalFlipped : false;
-                    noiseEnabled = typeof settings.noiseEnabled === "boolean" ? settings.noiseEnabled : true;
-                    noiseAmount = typeof settings.noiseAmount === "number" ? settings.noiseAmount : 18;
-                    noiseSize = typeof settings.noiseSize === "number" ? settings.noiseSize : 1.0;
-                    noiseSpeed = typeof settings.noiseSpeed === "number" ? settings.noiseSpeed : 60;
-
-                    brightness = Math.max(0, Math.min(200, brightness));
-                    contrast = Math.max(0, Math.min(200, contrast));
-                    scale = Math.max(0.5, Math.min(2, scale));
-                    blur = Math.max(0, Math.min(100, blur));
-                    noiseAmount = Math.max(0, Math.min(100, noiseAmount));
-                    noiseSize = Math.max(1.0, Math.min(10.0, noiseSize));
-                    noiseSpeed = Math.max(2, Math.min(60, noiseSpeed));
-
-                    updateFilters();
-                    applyTransform();
-                    updateFlipLabels();
-                    restartNoise();
-
-                    showFeedback("Settings loaded successfully");
-                } catch (error) {
-                    console.error(error);
-                    showFeedback("Failed to load settings");
-                }
-            };
-
-            reader.readAsText(file);
-            event.target.value = "";
-        }
-
-        startScreenCapture();
-        updateFilters();
-        applyTransform();
-        updateFlipLabels();
-        restartNoise();
-
-        window.addEventListener("resize", restartNoise);
-
-        document.body.addEventListener("mouseenter", () => setControlsVisible(true));
-        document.body.addEventListener("mouseleave", () => setControlsVisible(false));
-
-        document.getElementById("flip-horizontal").addEventListener("click", () => {
-            isHorizontalFlipped = !isHorizontalFlipped;
-            applyTransform();
-            updateFlipLabels();
-            showFeedback(`Horizontal Flip: ${isHorizontalFlipped ? "On" : "Off"}`);
+  function clamp(value, min, max){ return Math.max(min, Math.min(max, value)); }
+  function setStatus(message){ statusLine.innerHTML = "Status: <strong>" + message + "</strong>"; }
+  function showToast(message){
+    var toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("visible");
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(function(){ toast.classList.remove("visible"); }, 2100);
+  }
+  function formatValue(key, value){
+    if(key === "blur") return value + " px";
+    if(key === "zoom") return value + "%";
+    if(key.indexOf("crop") === 0) return value + "%";
+    if(key.indexOf("fade") === 0) return value + "%";
+    if(key === "noiseAmount") return value + "%";
+    if(key === "noiseSize") return value + "/10";
+    if(key === "noiseSpeed") return value + " FPS";
+    return value + "%";
+  }
+  function clampCrop(){
+    settings.cropW = clamp(Number(settings.cropW) || 2, 2, 100);
+    settings.cropH = clamp(Number(settings.cropH) || 2, 2, 100);
+    settings.cropX = clamp(Number(settings.cropX) || 0, 0, 100 - settings.cropW);
+    settings.cropY = clamp(Number(settings.cropY) || 0, 0, 100 - settings.cropH);
+  }
+  function saveLocal(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); }catch(err){ console.warn("Could not save settings", err); }
+  }
+  function loadLocal(){
+    try{
+      var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      if(saved && typeof saved === "object"){
+        Object.keys(defaults).forEach(function(key){
+          if(typeof saved[key] === typeof defaults[key]) settings[key] = saved[key];
         });
+      }
+    }catch(err){ console.warn("Could not load settings", err); }
+    clampCrop();
+  }
+  function syncControls(){
+    document.querySelectorAll("[data-key]").forEach(function(input){
+      var key = input.getAttribute("data-key");
+      if(input.type === "checkbox") input.checked = Boolean(settings[key]);
+      else input.value = settings[key];
+    });
+    document.querySelectorAll("[data-value-for]").forEach(function(output){
+      var key = output.getAttribute("data-value-for");
+      output.textContent = formatValue(key, settings[key]);
+    });
+    updateCropSelection();
+  }
+  function applyCrop(){
+    clampCrop();
+    var width = Number(settings.cropW), height = Number(settings.cropH);
+    cropLayer.style.width = (10000 / width) + "%";
+    cropLayer.style.height = (10000 / height) + "%";
+    cropLayer.style.left = (-Number(settings.cropX) / width * 100) + "%";
+    cropLayer.style.top = (-Number(settings.cropY) / height * 100) + "%";
+    video.style.transform = "scaleX(" + (settings.flipHorizontal ? -1 : 1) + ") scaleY(" + (settings.flipVertical ? -1 : 1) + ") scale(" + (Number(settings.zoom) / 100) + ")";
+    updateCropSelection();
+  }
+  function applyFilters(){
+    video.style.filter = "brightness(" + (Number(settings.brightness) / 100) + ") contrast(" + (Number(settings.contrast) / 100) + ") blur(" + Number(settings.blur) + "px)";
+  }
+  function applyFade(){
+    var strength = Number(settings.fadeStrength) / 100;
+    var fadeTop = document.getElementById("fadeTop");
+    var fadeRight = document.getElementById("fadeRight");
+    var fadeBottom = document.getElementById("fadeBottom");
+    var fadeLeft = document.getElementById("fadeLeft");
+    fadeTop.style.height = settings.fadeTop + "%";
+    fadeTop.style.background = "linear-gradient(to bottom, rgba(0,0,0," + strength + "), rgba(0,0,0,0))";
+    fadeRight.style.width = settings.fadeRight + "%";
+    fadeRight.style.background = "linear-gradient(to left, rgba(0,0,0," + strength + "), rgba(0,0,0,0))";
+    fadeBottom.style.height = settings.fadeBottom + "%";
+    fadeBottom.style.background = "linear-gradient(to top, rgba(0,0,0," + strength + "), rgba(0,0,0,0))";
+    fadeLeft.style.width = settings.fadeLeft + "%";
+    fadeLeft.style.background = "linear-gradient(to right, rgba(0,0,0," + strength + "), rgba(0,0,0,0))";
+  }
+  function updateCropSelection(){
+    if(!cropSelection) return;
+    cropSelection.style.left = settings.cropX + "%";
+    cropSelection.style.top = settings.cropY + "%";
+    cropSelection.style.width = settings.cropW + "%";
+    cropSelection.style.height = settings.cropH + "%";
+    var rect = cropPreview.getBoundingClientRect();
+    if(video.videoWidth && video.videoHeight && rect.width > 0){
+      cropPreview.style.aspectRatio = video.videoWidth + " / " + video.videoHeight;
+    }
+  }
+  function resizeNoiseCanvas(){
+    var ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+    noiseCanvas.width = Math.max(1, Math.min(2560, Math.round(window.innerWidth * ratio)));
+    noiseCanvas.height = Math.max(1, Math.min(1440, Math.round(window.innerHeight * ratio)));
+    noiseCtx.imageSmoothingEnabled = false;
+    rebuildNoiseSource();
+  }
+  function rebuildNoiseSource(){
+    var factor = 0.15 + ((Number(settings.noiseSize) - 1) / 9) * 0.75;
+    sourceCanvas.width = Math.max(32, Math.round(noiseCanvas.width * factor));
+    sourceCanvas.height = Math.max(32, Math.round(noiseCanvas.height * factor));
+    sourceCtx.imageSmoothingEnabled = false;
+    var img = sourceCtx.createImageData(sourceCanvas.width, sourceCanvas.height);
+    for(var i = 0; i < img.data.length; i += 4){
+      var v = (Math.random() * 256) | 0;
+      img.data[i] = v; img.data[i+1] = v; img.data[i+2] = v; img.data[i+3] = 255;
+    }
+    sourceCtx.putImageData(img, 0, 0);
+  }
+  function renderNoise(timestamp){
+    if(!settings.noiseEnabled) return;
+    var interval = 1000 / Math.max(2, Number(settings.noiseSpeed));
+    if(!lastNoiseTime || timestamp - lastNoiseTime >= interval){
+      lastNoiseTime = timestamp;
+      rebuildNoiseSource();
+      noiseCtx.clearRect(0, 0, noiseCanvas.width, noiseCanvas.height);
+      noiseCtx.drawImage(sourceCanvas, 0, 0, noiseCanvas.width, noiseCanvas.height);
+    }
+    noiseFrame = window.requestAnimationFrame(renderNoise);
+  }
+  function restartNoise(){
+    if(noiseFrame !== null){ window.cancelAnimationFrame(noiseFrame); noiseFrame = null; }
+    lastNoiseTime = 0;
+    noiseCanvas.style.opacity = settings.noiseEnabled ? String(Number(settings.noiseAmount) / 100) : "0";
+    if(settings.noiseEnabled){
+      resizeNoiseCanvas();
+      noiseFrame = window.requestAnimationFrame(renderNoise);
+    }else{
+      noiseCtx.clearRect(0, 0, noiseCanvas.width, noiseCanvas.height);
+    }
+  }
+  function applyAll(persist){
+    clampCrop();
+    applyCrop();
+    applyFilters();
+    applyFade();
+    noiseCanvas.style.opacity = settings.noiseEnabled ? String(Number(settings.noiseAmount) / 100) : "0";
+    syncControls();
+    if(persist !== false) saveLocal();
+  }
+  function applySingle(key){
+    if(key.indexOf("crop") === 0){
+      if(key === "cropW") settings.cropX = Math.min(settings.cropX, 100 - settings.cropW);
+      if(key === "cropH") settings.cropY = Math.min(settings.cropY, 100 - settings.cropH);
+      if(key === "cropX") settings.cropW = Math.min(settings.cropW, 100 - settings.cropX);
+      if(key === "cropY") settings.cropH = Math.min(settings.cropH, 100 - settings.cropY);
+      applyCrop();
+      syncControls();
+    }else if(key === "brightness" || key === "contrast" || key === "blur" || key === "zoom" || key === "flipHorizontal" || key === "flipVertical"){
+      applyCrop();
+      applyFilters();
+    }else if(key.indexOf("fade") === 0){
+      applyFade();
+    }else if(key.indexOf("noise") === 0){
+      if(key === "noiseEnabled" || key === "noiseSize" || key === "noiseSpeed") restartNoise();
+      else noiseCanvas.style.opacity = settings.noiseEnabled ? String(Number(settings.noiseAmount) / 100) : "0";
+    }
+    document.querySelectorAll("[data-value-for]").forEach(function(output){
+      var target = output.getAttribute("data-value-for");
+      output.textContent = formatValue(target, settings[target]);
+    });
+    saveLocal();
+  }
+  function setCropPreset(preset){
+    if(preset === "left"){ settings.cropX=0; settings.cropY=0; settings.cropW=50; settings.cropH=100; }
+    else if(preset === "right"){ settings.cropX=50; settings.cropY=0; settings.cropW=50; settings.cropH=100; }
+    else { settings.cropX=0; settings.cropY=0; settings.cropW=100; settings.cropH=100; }
+    applyAll();
+  }
+  function setPanelVisible(visible){
+    panel.classList.toggle("hidden", !visible);
+    document.getElementById("helpHint").classList.toggle("hidden", visible);
+    document.getElementById("settingsToggle").setAttribute("aria-expanded", visible ? "true" : "false");
+  }
+  function activateTab(tab){
+    document.querySelectorAll(".tab-button").forEach(function(btn){ btn.classList.toggle("active", btn.getAttribute("data-tab") === tab); });
+    document.querySelectorAll(".tab-panel").forEach(function(section){ section.classList.toggle("active", section.getAttribute("data-panel") === tab); });
+  }
+  function toggleFullscreen(){
+    if(!document.fullscreenElement){
+      var promise = document.documentElement.requestFullscreen();
+      if(promise && promise.catch) promise.catch(function(){ showToast("Fullscreen is not available here"); });
+    }else{
+      document.exitFullscreen().catch(function(){});
+    }
+  }
+  function handleCaptureEnded(){
+    activeStream = null;
+    video.srcObject = null;
+    sourcePreview.srcObject = null;
+    startOverlay.classList.remove("hidden");
+    startStatus.textContent = "Screen sharing stopped. Choose a source to start again.";
+    setStatus("capture stopped");
+  }
+  async function startScreenCapture(){
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia){
+      startStatus.textContent = "Screen capture requires a supported browser and a secure (HTTPS) page.";
+      return;
+    }
+    startStatus.textContent = "Waiting for screen selection…";
+    try{
+      var stream = await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:"monitor",frameRate:{ideal:30,max:60}},audio:false});
+      activeStream = stream;
+      video.srcObject = stream;
+      sourcePreview.srcObject = stream;
+      await video.play();
+      try{ await sourcePreview.play(); }catch(ignored){}
+      var tracks = stream.getVideoTracks();
+      if(tracks.length) tracks[0].addEventListener("ended", handleCaptureEnded, {once:true});
+      startOverlay.classList.add("hidden");
+      setStatus("capturing live");
+      startStatus.textContent = "";
+      updateCropSelection();
+      setPanelVisible(true);
+      showToast("Screen connected — settings are live");
+    }catch(err){
+      console.warn("Screen capture was not started", err);
+      startStatus.textContent = err && err.name === "NotAllowedError" ? "Capture was cancelled or permission was denied. Click to try again." : "Could not start capture. Check browser permissions and try again.";
+    }
+  }
+  function exportSettings(){
+    var payload = {app:"AmbientMonitor",version:2,settings:settings};
+    var blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url; link.download = "AmbientMonitorSettings.json";
+    document.body.appendChild(link); link.click(); link.remove();
+    URL.revokeObjectURL(url);
+    showToast("Settings exported");
+  }
+  function importSettingsObject(object){
+    var incoming = object && object.settings ? object.settings : object;
+    if(!incoming || typeof incoming !== "object") throw new Error("Invalid settings file");
+    Object.keys(defaults).forEach(function(key){
+      if(typeof incoming[key] === typeof defaults[key]){
+        if(typeof defaults[key] === "number") settings[key] = clamp(Number(incoming[key]), key.indexOf("fade") === 0 ? 0 : (key.indexOf("crop") === 0 ? (key === "cropW" || key === "cropH" ? 2 : 0) : (key === "zoom" ? 50 : (key === "blur" ? 0 : 0))), key.indexOf("fade") === 0 ? (key === "fadeStrength" ? 100 : 50) : (key.indexOf("crop") === 0 ? 100 : (key === "zoom" ? 200 : (key === "blur" ? 100 : (key === "brightness" || key === "contrast" ? 200 : (key === "noiseSpeed" ? 60 : (key === "noiseSize" ? 10 : 100))))));
+        else settings[key] = incoming[key];
+      }
+    });
+    clampCrop();
+    applyAll();
+    restartNoise();
+    showToast("Settings imported");
+  }
+  function readSettingsFile(event){
+    var file = event.target.files && event.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{ importSettingsObject(JSON.parse(String(reader.result))); }
+      catch(err){ showToast("Could not import this settings file"); console.error(err); }
+      event.target.value = "";
+    };
+    reader.readAsText(file);
+  }
+  function getProfiles(){
+    try{
+      var data = JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}");
+      return data && typeof data === "object" ? data : {};
+    }catch(err){ return {}; }
+  }
+  function refreshProfiles(selectName){
+    var select = document.getElementById("profileSelect");
+    var profiles = getProfiles();
+    select.innerHTML = '<option value="">Choose a saved profile…</option>';
+    Object.keys(profiles).sort().forEach(function(name){
+      var option = document.createElement("option");
+      option.value = name; option.textContent = name; select.appendChild(option);
+    });
+    if(selectName && profiles[selectName]) select.value = selectName;
+  }
+  function saveProfile(){
+    var name = window.prompt("Name this profile (e.g. Gaming or Film):");
+    if(!name || !name.trim()) return;
+    name = name.trim().slice(0,48);
+    var profiles = getProfiles();
+    profiles[name] = Object.assign({},settings);
+    try{ localStorage.setItem(PROFILE_KEY,JSON.stringify(profiles)); refreshProfiles(name); showToast("Profile saved"); }
+    catch(err){ showToast("Could not save profile in this browser"); }
+  }
+  function loadProfile(){
+    var name = document.getElementById("profileSelect").value;
+    var profiles = getProfiles();
+    if(!name || !profiles[name]){ showToast("Choose a profile first"); return; }
+    importSettingsObject(profiles[name]);
+  }
+  function deleteProfile(){
+    var select = document.getElementById("profileSelect");
+    var name = select.value;
+    if(!name) return;
+    var profiles = getProfiles();
+    delete profiles[name];
+    try{ localStorage.setItem(PROFILE_KEY,JSON.stringify(profiles)); refreshProfiles(); showToast("Profile deleted"); }
+    catch(err){ showToast("Could not update profiles"); }
+  }
 
-        document.getElementById("flip-vertical").addEventListener("click", () => {
-            isVerticalFlipped = !isVerticalFlipped;
-            applyTransform();
-            updateFlipLabels();
-            showFeedback(`Vertical Flip: ${isVerticalFlipped ? "On" : "Off"}`);
-        });
+  document.querySelectorAll("[data-key]").forEach(function(input){
+    input.addEventListener(input.type === "checkbox" ? "change" : "input", function(){
+      var key = input.getAttribute("data-key");
+      settings[key] = input.type === "checkbox" ? input.checked : Number(input.value);
+      applySingle(key);
+    });
+  });
+  document.querySelectorAll("[data-tab]").forEach(function(button){
+    button.addEventListener("click",function(){ activateTab(button.getAttribute("data-tab")); });
+  });
+  document.querySelectorAll("[data-preset]").forEach(function(button){
+    button.addEventListener("click",function(){ setCropPreset(button.getAttribute("data-preset")); });
+  });
+  document.getElementById("startCapture").addEventListener("click",startScreenCapture);
+  document.getElementById("changeCapture").addEventListener("click",startScreenCapture);
+  document.getElementById("settingsToggle").addEventListener("click",function(){ setPanelVisible(panel.classList.contains("hidden")); });
+  document.getElementById("closePanel").addEventListener("click",function(){ setPanelVisible(false); });
+  document.getElementById("fullscreenToggle").addEventListener("click",toggleFullscreen);
+  document.getElementById("exportSettings").addEventListener("click",exportSettings);
+  document.getElementById("importSettings").addEventListener("click",function(){ document.getElementById("settingsFile").click(); });
+  document.getElementById("settingsFile").addEventListener("change",readSettingsFile);
+  document.getElementById("resetSettings").addEventListener("click",function(){
+    if(!window.confirm("Reset all settings to their defaults?")) return;
+    settings = Object.assign({},defaults);
+    applyAll(); restartNoise(); showToast("Settings reset");
+  });
+  document.getElementById("saveProfile").addEventListener("click",saveProfile);
+  document.getElementById("loadProfile").addEventListener("click",loadProfile);
+  document.getElementById("deleteProfile").addEventListener("click",deleteProfile);
 
-        document.getElementById("toggle-noise").addEventListener("click", () => {
-            noiseEnabled = !noiseEnabled;
-            restartNoise();
-            showFeedback(`Noise: ${noiseEnabled ? "On" : "Off"}`);
-        });
+  cropSelection.addEventListener("pointerdown",function(event){
+    if(!video.videoWidth) return;
+    event.preventDefault();
+    var rect = cropPreview.getBoundingClientRect();
+    var handleEl = event.target.closest("[data-handle]");
+    var handle = handleEl ? handleEl.getAttribute("data-handle") : "move";
+    dragState = {id:event.pointerId,startX:event.clientX,startY:event.clientY,rect:rect,x:Number(settings.cropX),y:Number(settings.cropY),w:Number(settings.cropW),h:Number(settings.cropH),handle:handle};
+    cropSelection.setPointerCapture(event.pointerId);
+  });
+  cropSelection.addEventListener("pointermove",function(event){
+    if(!dragState || dragState.id !== event.pointerId) return;
+    var dx = (event.clientX - dragState.startX) / dragState.rect.width * 100;
+    var dy = (event.clientY - dragState.startY) / dragState.rect.height * 100;
+    var x = dragState.x, y = dragState.y, w = dragState.w, h = dragState.h;
+    if(dragState.handle === "move"){
+      x = clamp(dragState.x + dx,0,100-w);
+      y = clamp(dragState.y + dy,0,100-h);
+    }else{
+      if(dragState.handle.indexOf("w") !== -1){ var right = dragState.x + dragState.w; x = clamp(dragState.x + dx,0,right-2); w = right-x; }
+      if(dragState.handle.indexOf("e") !== -1){ w = clamp(dragState.w + dx,2,100-dragState.x); }
+      if(dragState.handle.indexOf("n") !== -1){ var bottom = dragState.y + dragState.h; y = clamp(dragState.y + dy,0,bottom-2); h = bottom-y; }
+      if(dragState.handle.indexOf("s") !== -1){ h = clamp(dragState.h + dy,2,100-dragState.y); }
+    }
+    settings.cropX = Math.round(x); settings.cropY = Math.round(y); settings.cropW = Math.round(w); settings.cropH = Math.round(h);
+    clampCrop(); applyCrop(); syncControls(); saveLocal();
+  });
+  function finishCropDrag(event){ if(dragState && (!event || event.pointerId === dragState.id)) dragState = null; }
+  cropSelection.addEventListener("pointerup",finishCropDrag);
+  cropSelection.addEventListener("pointercancel",finishCropDrag);
+  window.addEventListener("resize",function(){ resizeNoiseCanvas(); updateCropSelection(); });
+  document.addEventListener("fullscreenchange",function(){
+    document.getElementById("fullscreenToggle").textContent = document.fullscreenElement ? "⛶" : "⛶";
+    window.setTimeout(function(){ resizeNoiseCanvas(); updateCropSelection(); },120);
+  });
+  document.addEventListener("keydown",function(event){
+    var target = event.target;
+    var isEditing = target && (target.matches("input,textarea,select") || target.isContentEditable);
+    if(isEditing) return;
+    if(event.key === "Tab"){
+      event.preventDefault(); setPanelVisible(panel.classList.contains("hidden"));
+    }else if(event.key.toLowerCase() === "f"){
+      event.preventDefault(); toggleFullscreen();
+    }else if(event.key === "Escape" && !panel.classList.contains("hidden")){
+      setPanelVisible(false);
+    }else if(event.key === " "){
+      event.preventDefault(); toggleFullscreen();
+    }else if(event.key === "Enter"){
+      var cropTabActive = document.querySelector('[data-panel="crop"]').classList.contains("active");
+      if(!cropTabActive){
+        var presets = ["full","left","right"];
+        var current = settings.cropW === 100 ? "full" : (settings.cropX >= 50 ? "right" : "left");
+        setCropPreset(presets[(presets.indexOf(current)+1)%presets.length]);
+        showToast("Crop: " + (settings.cropW === 100 ? "full screen" : (settings.cropX >= 50 ? "right half" : "left half")));
+      }
+    }else if(event.key >= "1" && event.key <= "8"){
+      var delta = event.key === "1" || event.key === "3" || event.key === "5" || event.key === "7" ? -1 : 1;
+      var keys = {"1":"brightness","2":"brightness","3":"contrast","4":"contrast","5":"zoom","6":"zoom","7":"blur","8":"blur"};
+      var key = keys[event.key];
+      var step = key === "blur" ? 5 : (key === "zoom" ? 5 : 5);
+      settings[key] = clamp(Number(settings[key]) + delta * step,key === "zoom" ? 50 : 0,key === "zoom" ? 200 : (key === "blur" ? 100 : 200));
+      applyAll();
+      showToast(key + ": " + settings[key]);
+    }else if(event.key === "9"){
+      exportSettings();
+    }else if(event.key === "0"){
+      settings = Object.assign({},defaults); applyAll(); restartNoise(); showToast("Settings reset");
+    }
+  });
 
-        document.getElementById("decrease-brightness").addEventListener("click", () => {
-            brightness = Math.max(0, brightness - 10);
-            updateFilters();
-            showFeedback(`Brightness: ${brightness}%`);
-        });
-
-        document.getElementById("increase-brightness").addEventListener("click", () => {
-            brightness = Math.min(200, brightness + 10);
-            updateFilters();
-            showFeedback(`Brightness: ${brightness}%`);
-        });
-
-        document.getElementById("decrease-contrast").addEventListener("click", () => {
-            contrast = Math.max(0, contrast - 10);
-            updateFilters();
-            showFeedback(`Contrast: ${contrast}%`);
-        });
-
-        document.getElementById("increase-contrast").addEventListener("click", () => {
-            contrast = Math.min(200, contrast + 10);
-            updateFilters();
-            showFeedback(`Contrast: ${contrast}%`);
-        });
-
-        document.getElementById("decrease-scale").addEventListener("click", () => {
-            scale = Math.max(0.5, +(scale - 0.1).toFixed(2));
-            applyTransform();
-            showFeedback(`Scale: ${Math.round(scale * 100)}%`);
-        });
-
-        document.getElementById("increase-scale").addEventListener("click", () => {
-            scale = Math.min(2, +(scale + 0.1).toFixed(2));
-            applyTransform();
-            showFeedback(`Scale: ${Math.round(scale * 100)}%`);
-        });
-
-        document.getElementById("decrease-blur").addEventListener("click", () => {
-            blur = Math.max(0, blur - 5);
-            updateFilters();
-            showFeedback(`Blur: ${blur}px`);
-        });
-
-        document.getElementById("increase-blur").addEventListener("click", () => {
-            blur = Math.min(100, blur + 5);
-            updateFilters();
-            showFeedback(`Blur: ${blur}px`);
-        });
-
-        document.getElementById("decrease-noise-amount").addEventListener("click", () => {
-            noiseAmount = Math.max(0, noiseAmount - 2);
-            updateNoiseAppearance();
-            showFeedback(`Noise Amount: ${noiseAmount}%`);
-        });
-
-        document.getElementById("increase-noise-amount").addEventListener("click", () => {
-            noiseAmount = Math.min(100, noiseAmount + 2);
-            updateNoiseAppearance();
-            showFeedback(`Noise Amount: ${noiseAmount}%`);
-        });
-
-        document.getElementById("decrease-noise-size").addEventListener("click", () => {
-            noiseSize = Math.max(1.0, +(noiseSize - 0.25).toFixed(2));
-            showFeedback(`Noise Size: ${noiseSize.toFixed(2)}`);
-        });
-
-        document.getElementById("increase-noise-size").addEventListener("click", () => {
-            noiseSize = Math.min(10.0, +(noiseSize + 0.25).toFixed(2));
-            showFeedback(`Noise Size: ${noiseSize.toFixed(2)}`);
-        });
-
-        document.getElementById("decrease-noise-speed").addEventListener("click", () => {
-            noiseSpeed = Math.max(2, noiseSpeed - 2);
-            showFeedback(`Noise Speed: ${noiseSpeed} fps`);
-        });
-
-        document.getElementById("increase-noise-speed").addEventListener("click", () => {
-            noiseSpeed = Math.min(60, noiseSpeed + 2);
-            showFeedback(`Noise Speed: ${noiseSpeed} fps`);
-        });
-
-        fullscreenButton.addEventListener("click", toggleFullscreen);
-
-        document.addEventListener("fullscreenchange", () => {
-            fullscreenButton.textContent = document.fullscreenElement ? "Exit Fullscreen" : "Enter Fullscreen";
-        });
-
-        function changeToConfirm() {
-            resetButton.textContent = "Confirm";
-            resetButton.classList.add("confirm-button");
-            isConfirmMode = true;
-            resetButton.removeEventListener("click", changeToConfirm);
-            resetButton.addEventListener("click", confirmReset);
-        }
-
-        function confirmReset() {
-            if (!isConfirmMode) return;
-            resetSettings();
-            resetButton.textContent = "Reset";
-            resetButton.classList.remove("confirm-button");
-            isConfirmMode = false;
-            resetButton.removeEventListener("click", confirmReset);
-            resetButton.addEventListener("click", changeToConfirm);
-        }
-
-        resetButton.addEventListener("click", changeToConfirm);
-
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "F11") {
-                e.preventDefault();
-                toggleFullscreen();
-            } else if (e.key === "Backspace") {
-                e.preventDefault();
-                resetSettings();
-            }
-        });
-
-        document.getElementById("save-settings").addEventListener("click", saveSettingsToFile);
-        document.getElementById("load-settings-button").addEventListener("click", () => {
-            document.getElementById("load-settings").click();
-        });
-        document.getElementById("load-settings").addEventListener("change", loadSettingsFromFile);
-    </script>
+  loadLocal();
+  applyAll(false);
+  restartNoise();
+  refreshProfiles();
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia){
+    startStatus.textContent = "Screen capture requires a supported browser and HTTPS (or localhost).";
+  }
+})();
+</script>
 </body>
 </html>
